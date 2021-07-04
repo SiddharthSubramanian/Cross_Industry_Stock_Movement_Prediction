@@ -49,7 +49,6 @@ for k in in_data.keys():
 
 Y = pd.DataFrame()
 for k in out_data.keys():
-  Y[k + "_%_change_delivery"] = out_data[k]['%_change_delivery']
   Y[k + "_%_change_price"] = out_data[k]['%_change_price']
 timestep = 14
 X_data = []
@@ -65,5 +64,5 @@ train_Y = np.array(train_Y)
 
 test_X = np.array(test_X)
 test_Y = np.array(test_Y)
-train_Y = train_Y.reshape(665,1,26)
-test_Y = test_Y.reshape(166,1,26)
+train_Y = train_Y.reshape(665,1,13)
+test_Y = test_Y.reshape(166,1,13)
