@@ -3,24 +3,24 @@ encoder_inputs = keras.layers.Input(shape=(timestep, train_X.shape[2]))
 encoder_outputs1 = keras.layers.LSTM(
     60, activation='elu', dropout=0.2, recurrent_dropout=0.2, 
     return_state=True, return_sequences=True)(encoder_inputs)
-encoder_outputs1[1] = keras.layers.BatchNormalization(momentum=0.6)(encoder_outputs1[1])
-encoder_outputs1[2] = keras.layers.BatchNormalization(momentum=0.6)(encoder_outputs1[2])
+encoder_outputs1[1] = keras.layers.BatchNormalization(momentum=0.5)(encoder_outputs1[1])
+encoder_outputs1[2] = keras.layers.BatchNormalization(momentum=0.5)(encoder_outputs1[2])
 decoder_input = keras.layers.RepeatVector(train_Y.shape[1])(encoder_outputs1[1])
 
-decoder_output1 = keras.layers.LSTM(60, activation='elu', dropout=0.1, recurrent_dropout=0.1,
+decoder_output1 = keras.layers.LSTM(60, activation='elu', dropout=0.2, recurrent_dropout=0.2,
  return_state=False, return_sequences=True)(
  decoder_input, initial_state=[encoder_outputs1[1], encoder_outputs1[2]])
 attention = keras.layers.dot([decoder_output1, encoder_outputs1[0]], axes=[2, 2])
 attention = keras.layers.Activation('softmax')(attention)
 context = keras.layers.dot([attention, encoder_outputs1[0]], axes=[2,1])
-context = keras.layers.BatchNormalization(momentum=0.6)(context)
+context = keras.layers.BatchNormalization(momentum=0.5)(context)
 decoder_combined_context = keras.layers.concatenate([context, decoder_output1])
 decoder_outputs1 = keras.layers.TimeDistributed(keras.layers.Dense(train_Y.shape[2]))(decoder_combined_context)
 model_attention = keras.models.Model(encoder_inputs,decoder_outputs1)
 #
 model_attention.summary()
 opt = keras.optimizers.Adam(lr=0.01, clipnorm=1)
-model_attention.compile(loss=keras.losses.Huber(), optimizer=opt, metrics=['mae'])
+model_attention.compile(loss="mean_squared_error", optimizer=opt, metrics=['mse'])
 reduce_lr = keras.callbacks.LearningRateScheduler(lambda x: 1e-3 * 0.90 ** x)
 history=model_attention.fit(train_X,train_Y,epochs=100,validation_data=(test_X,test_Y),
                             batch_size=14,verbose=1,callbacks=[reduce_lr])
