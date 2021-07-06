@@ -16,17 +16,17 @@ model.summary()
 reduce_lr = keras.callbacks.LearningRateScheduler(lambda x: 1e-3 * 0.90 ** x)
 
 model.compile(optimizer=keras.optimizers.Adam(), loss=keras.losses.Huber())
-history_e1d1=model.fit(train_X,train_Y,epochs=50,validation_data=(test_X,test_Y),
+history=model.fit(train_X,train_Y,epochs=50,validation_data=(test_X,test_Y),
                             batch_size=14,verbose=1,callbacks=[reduce_lr])
-plt.plot(history_e1d1.history['loss'])
-plt.plot(history_e1d1.history['val_loss'])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
 plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
 
-prediction = model_e1d1.predict(test_X)
+prediction = model.predict(test_X)
 pred = []
 original = []
 for i in range(prediction.shape[0]):
